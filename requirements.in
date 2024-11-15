@@ -1,3 +1,5 @@
 pillow
 Wand
 piexif
+python-dotenv
+requests

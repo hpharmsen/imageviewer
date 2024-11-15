@@ -8,6 +8,7 @@ import piexif
 
 import image
 from dirpanel import DirPanel
+from exif import get_exif, Exif
 from filepanel import FilePanel
 from imagepanel import ImagePanel
 from filenamepopup import FilenamePopup
@@ -97,10 +98,8 @@ class ImageViewer(ttk.Frame):
         im = self.imagePanel.load_image(path)
         # Haal Exif-data op en laad beschrijving in text_entry
         try:
-            exif_data = piexif.load(im.info['exif'])
-            description = exif_data["0th"].get(piexif.ImageIFD.ImageDescription, b"").decode("utf-8")
             self.text_entry.delete("1.0", "end")
-            self.text_entry.insert("1.0", description)
+            self.text_entry.insert("1.0", Exif(im).description)
         except KeyError:
             self.text_entry.delete("1.0", "end")  # Wis text_entry als er geen beschrijving is
 
@@ -116,11 +115,7 @@ class ImageViewer(ttk.Frame):
         # Save in Exif
         new_description = self.text_entry.get("1.0",'end-1c')
         im = Image.open(path)
-        exif_data = piexif.load(im.info['exif']) if 'exif' in im.info else {"0th": {}}
-        if exif_data["0th"].get(piexif.ImageIFD.ImageDescription) != new_description.encode("utf-8"):
-            exif_data["0th"][piexif.ImageIFD.ImageDescription] = new_description.encode("utf-8")
-            exif_bytes = piexif.dump(exif_data)
-            im.save(path, exif=exif_bytes)
+        Exif(im).description = new_description
 
     # -- callbacks van filepanel en dirpanel --
 
