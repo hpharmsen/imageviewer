@@ -1,2 +1,3 @@
 /timelog.csv
 /.idea/vcs.xml
+!/.env
