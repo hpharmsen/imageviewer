@@ -16,7 +16,7 @@ def sync_folder(im: Immich, directory: str):
 
     # Get the hashes of all files in the directory
     dir_contents = {}
-    for file in os.listdir(directory):
+    for file in sorted(os.listdir(directory)):
         file_path = os.path.join(directory, file)
         if not os.path.isfile(file_path) or not is_image_or_video(file_path):
             continue
@@ -28,13 +28,15 @@ def sync_folder(im: Immich, directory: str):
         print(f'Deleting {len(to_delete)} assets')
         im.delete_assets(to_delete)
 
-    # Add all images from the director that are not in the album
+    # Add all images from the directory that are not in the album
     to_add = [file_path for checksum, file_path in dir_contents.items() if checksum not in album_contents]
     for file_path in to_add:
         print('Uploading ' + file_path)
         asset_id = im.upload_asset(file_path)
         if asset_id:
-            im.add_asset_to_album(album_id, asset_id)
+            res = im.add_asset_to_album(album_id, asset_id)
+            if res[0].get('error'):
+                print(f'Cannot add image {asset_id} to Album to {album_id}', res[0]['error'], res[0]['id'])
 
 
 def delete_assets_without_album(im: Immich):
@@ -42,12 +44,14 @@ def delete_assets_without_album(im: Immich):
     print(f'Deleting {len(to_delete)} without album')
     im.delete_assets(to_delete)
 
+
 def is_int(s: str):
     try:
         int(s)
         return True
     except ValueError:
         return False
+
 
 if __name__ == "__main__":
     load_dotenv()

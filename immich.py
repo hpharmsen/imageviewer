@@ -109,6 +109,7 @@ class Immich:
             return data['id']
         elif response.status_code == 413:
             print(f"File too large ({os.path.getsize(file_path)}): {file_path}")
+            # 123_234_464
         else:
             panic(f"Upload failed: {response.status_code} {response.text}")
 
@@ -146,6 +147,9 @@ class Immich:
     def album_info(self, album_id: str):
         return self.get(f"albums/{album_id}", {})
 
+    def delete_album(self, album_id: str):
+        return self.delete(f"albums/{album_id}", {})
+
     def add_asset_to_album(self, album_id: str, asset_id: str):
         payload = json.dumps({"ids": [asset_id]})
         return self.put(f"albums/{album_id}/assets", payload)
@@ -165,7 +169,7 @@ class Immich:
     def upload_folder(self, path: str):
         album_name = path.rsplit('/', 1)[1]
         album_id = self.create_album(album_name)
-        for file in os.listdir(path):
+        for file in sorted(os.listdir(path)):
             full_path = f"{path}/{file}"
             if is_image(full_path):
                 print(full_path)

@@ -8,7 +8,7 @@ import piexif
 
 import image
 from dirpanel import DirPanel
-from exif import get_exif, Exif
+from exif import Exif
 from filepanel import FilePanel
 from imagepanel import ImagePanel
 from filenamepopup import FilenamePopup
